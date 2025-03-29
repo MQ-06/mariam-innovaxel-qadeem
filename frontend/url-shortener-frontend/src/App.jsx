@@ -6,6 +6,9 @@ function App() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -27,7 +30,7 @@ function App() {
       setLoading(false);
     }
   };
-  
+
   const handleViewStats = async () => {
     try {
       const response = await fetch(
@@ -37,12 +40,31 @@ function App() {
         throw new Error("Failed to fetch statistics");
       }
       const data = await response.json();
-      setStats(data);
+      setModalContent(
+        <div>
+          <h2 className="text-2xl font-bold mb-4">URL Statistics</h2>
+          <p>
+            <strong>Original URL:</strong> {data.url}
+          </p>
+          <p>
+            <strong>Created At:</strong>{" "}
+            {new Date(data.createdAt).toLocaleString()}
+          </p>
+          <p>
+            <strong>Last Updated:</strong>{" "}
+            {new Date(data.updatedAt).toLocaleString()}
+          </p>
+          <p>
+            <strong>Access Count:</strong> {data.accessCount}
+          </p>
+        </div>
+      );
+      setIsModalOpen(true);
     } catch (error) {
       alert(error.message);
     }
   };
-  
+
   const handleUpdate = async () => {
     const newUrl = prompt("Enter the new long URL:");
     if (!newUrl) return;
@@ -60,12 +82,13 @@ function App() {
       }
       const data = await response.json();
       setLongUrl(newUrl);
-      alert("URL updated successfully!");
+      setModalContent(<p>URL updated successfully!</p>);
+      setIsModalOpen(true);
     } catch (error) {
       alert(error.message);
     }
   };
-  
+
   const handleDelete = async () => {
     try {
       const response = await fetch(
@@ -77,13 +100,15 @@ function App() {
       if (!response.ok) {
         throw new Error("Failed to delete URL");
       }
+      setModalContent(<p>URL deleted successfully!</p>);
+      setIsModalOpen(true);
       setShortUrl("");
       setStats(null);
-      alert("URL deleted successfully!");
     } catch (error) {
       alert(error.message);
     }
   };
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 font-mono">
       <div className="text-center mb-10">
@@ -129,139 +154,52 @@ function App() {
               href={`http://localhost:5000/api/shorten/${shortUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xl underline hover:text-black hover:bg-white transition-all duration-200 break-all p-1 rounded"
+              className="text-xl underline break-all p-1 rounded"
             >
               http://localhost:5000/api/shorten/{shortUrl}
             </a>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(
-                  `http://localhost:5000/api/shorten/${shortUrl}`
-                );
-                alert("Copied to clipboard!");
-              }}
-              className="p-2 hover:bg-white hover:text-black rounded transition-all duration-200"
-              title="COPY TO CLIPBOARD"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
-                />
-              </svg>
-            </button>
+          
           </div>
           <div className="flex flex-wrap justify-center gap-4 pt-6 relative z-10">
             <button
               onClick={handleViewStats}
-              className="px-8 py-3 bg-black border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black hover:shadow-neon-green-glow transform hover:scale-105 transition-all duration-300 uppercase tracking-wider flex items-center"
+              className="px-8 py-3 bg-black border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black hover:shadow-neon-green-glow transform hover:scale-105 transition-all duration-300 uppercase tracking-wider"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-              </svg>
               VIEW STATS
             </button>
             <button
               onClick={handleUpdate}
-              className="px-8 py-3 bg-black border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black hover:shadow-neon-green-glow transform hover:scale-105 transition-all duration-300 uppercase tracking-wider flex items-center"
+              className="px-8 py-3 bg-black border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black hover:shadow-neon-green-glow transform hover:scale-105 transition-all duration-300 uppercase tracking-wider"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
               UPDATE URL
             </button>
             <button
               onClick={handleDelete}
-              className="px-8 py-3 bg-black border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black hover:shadow-neon-green-glow transform hover:scale-105 transition-all duration-300 uppercase tracking-wider flex items-center"
+              className="px-8 py-3 bg-black border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black hover:shadow-neon-green-glow transform hover:scale-105 transition-all duration-300 uppercase tracking-wider"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
               DELETE URL
             </button>
           </div>
         </div>
       )}
 
-      {/* Display Statistics */}
-      {stats && (
-        <div className="mt-10 w-full max-w-2xl bg-black p-8 rounded-lg border-2 border-white relative overflow-hidden">
-          <h2 className="text-3xl font-bold mb-6 text-center uppercase tracking-wider relative z-10">
-            <span className="text-shadow-neon">URL STATISTICS</span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-            {/* Basic Information */}
-            <div className="bg-black p-6 rounded-lg border-2 border-neon-green">
-              <h3 className="text-xl font-semibold mb-4 uppercase tracking-wider flex items-center">
-                <span className="h-3 w-3 bg-white rounded-full mr-2"></span>
-                BASIC INFORMATION
-              </h3>
-              <div className="space-y-3 font-mono">
-                <p className="flex justify-between border-b border-white border-opacity-30 pb-2">
-                  <span className="text-white text-opacity-80">
-                    ORIGINAL URL:
-                  </span>
-                  <span className="text-right break-all">{stats.url}</span>
-                </p>
-                <p className="flex justify-between border-b border-white border-opacity-30 pb-2">
-                  <span className="text-white text-opacity-80">CREATED:</span>
-                  <span>{new Date(stats.createdAt).toLocaleString()}</span>
-                </p>
-                <p className="flex justify-between">
-                  <span className="text-white text-opacity-80">
-                    LAST UPDATED:
-                  </span>
-                  <span>{new Date(stats.updatedAt).toLocaleString()}</span>
-                </p>
-              </div>
-            </div>
-            {/* Access Count */}
-            <div className="bg-black p-6 rounded-lg border-2 border-white flex flex-col items-center justify-center">
-              <h3 className="text-xl font-semibold mb-4 uppercase tracking-wider flex items-center">
-                <span className="h-3 w-3 bg-white rounded-full mr-2"></span>
-                ACCESS COUNT
-              </h3>
-              <div className="text-6xl font-bold animate-pulse my-4">
-                {stats.accessCount}
-              </div>
-              <p className="text-white text-opacity-80 uppercase tracking-wider">
-                TOTAL CLICKS
-              </p>
-            </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-black p-8 rounded-lg border-2 border-white relative w-full max-w-md">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-2 right-2 text-white hover:text-red-500"
+            >
+              &times;
+            </button>
+            <div>{modalContent}</div>
           </div>
         </div>
       )}
 
       <footer className="mt-16 text-center text-white text-opacity-70 text-sm uppercase tracking-wider">
-        <p className="mt-2 text-xs">
-            <span className="text-green-500">INNOVAXEL</span>
+        <p className="mt-2 text-lg">
+          <span className="text-green-500">INNOVAXEL</span>
         </p>
       </footer>
     </div>
