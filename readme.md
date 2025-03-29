@@ -65,5 +65,5 @@ Open your browser and navigate to [http://localhost:3000](http://localhost:3000)
 - **GET** `/api/stats/:shortCode` : View statistics for a shortened URL.
 
 ## Notes
-I tried to match the innovaxel color theme for the frontend and you can test the required functionality via frontend.
+I tried to match the innovaxel color theme for the frontend and you can test the required functionality through frontend.
 
