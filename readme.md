@@ -1,16 +1,13 @@
 # URL Shortener
 
 A modern URL shortener built with React (frontend) and Node.js/Express (backend).
+
 ## Frontend Preview
 
 Here is a preview of the frontend:
 
 ![Frontend Screenshot](./project.png)
-## Frontend Preview
 
-Here is a preview of the frontend:
-
-![Frontend Screenshot](./frontend-screenshot.png)
 
 ## Features
 - **Shorten URLs** : Convert long URLs into compact links.
